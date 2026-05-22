@@ -10,6 +10,8 @@ Rails 8 + React 19 + PostgreSQL, bridged by **Inertia.js** (no separate API laye
 
 Background jobs, caching, and WebSockets use the Rails 8 "Solid" trifecta (Solid Queue, Solid Cache, Solid Cable), all database-backed. **All four share the single PostgreSQL database** (`build_new_<env>` by default) — there are no separate cache/cable/queue databases, no `db/cache_schema.rb` / `db/cable_schema.rb` / `db/queue_schema.rb`, and `config/cache.yml` / `config/cable.yml` / `config/queue.yml` have no separate connection blocks. Override the connection via `DATABASE_URL` or the `DATABASE_USER` / `DATABASE_PASSWORD` / `DATABASE_HOST` / `DATABASE_PORT` env vars (see `config/database.yml`).
 
+**Per-worktree dev DB isolation.** `config/database.yml` derives the development DB name from the checkout's git state. The main checkout (where `.git` is a directory) keeps using `build_new_development`. Each git worktree (where `.git` is a pointer file written by `git worktree add`, e.g. Conductor workspaces) gets its own DB suffixed with the worktree directory name — `build_new_development_<dirname>` — so parallel worktrees never share or clobber each other's schemas. This matters when forking this template into a new app: if two checkouts share a dev DB, migrations from one will land in the other and `db:schema:dump` will commit phantom tables. Override the derived name with `DATABASE_NAME` if needed.
+
 ## Commands
 
 ```bash
