@@ -1,0 +1,18 @@
+{
+  "setup": [
+    "bin/setup",
+    "npm install"
+  ],
+  "run": [
+    "lsof -ti :3000 -ti :3036 -ti :13714 2>/dev/null | xargs kill -9 2>/dev/null || true",
+    "rm -f tmp/pids/server.pid",
+    "bin/rails db:prepare",
+    "bin/dev"
+  ],
+  "teardown": [
+    "rm -rf node_modules",
+    "rm -rf public/vite public/vite-ssr public/vite-dev",
+    "rm -rf tmp/cache tmp/pids tmp/sockets tmp/storage",
+    "rm -f log/*.log"
+  ]
+}
