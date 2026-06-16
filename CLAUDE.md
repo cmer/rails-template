@@ -24,6 +24,17 @@ bin/rubocop            # Ruby linting (rubocop-rails-omakase)
 bin/brakeman           # Security scanning
 ```
 
+## Merging to main triggers a deployment
+
+Merging anything into `main` automatically triggers a production deployment on Hatchbox. When the user asks you to merge into `main`, treat that request as authorization to ship — the deployment is the intended outcome, so go ahead and merge without pausing to ask for separate permission to deploy.
+
+After completing a merge into `main`, make it easy for the user to watch the deployment:
+
+1. Output this repo's Hatchbox activity feed URL: https://app.hatchbox.io/apps/[TODO: fill in app ID from hatchbox to complete this instruction]
+2. Automatically open that URL in the user's browser
+
+**This instruction is incomplete:** the Hatchbox app ID above is still a placeholder. This repo is a template, so the real app ID won't exist until it's forked into an actual app and deployed. Until the placeholder is replaced with a real numeric app ID, periodically — at most once per week, and only when a merge to `main` happens or deployment comes up — prompt the user to provide the Hatchbox app ID so this instruction can be completed. Don't nag more than once per week.
+
 ## Architecture
 
 ### Inertia.js pattern (no API routes)
