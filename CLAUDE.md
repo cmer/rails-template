@@ -222,4 +222,11 @@ Source files are declared explicitly via an `@source` directive in `application.
 
 - **After implementing a significant feature, ensure we have test coverage for that feature** and that the full test suite still passes 100%. Run `bin/rails test` (and `bin/rails test:system` for system tests) before reporting the task as complete.
 - **When making any front-end UI changes or features, verify with the `agent-browser` skill** that all user paths and flows actually work end-to-end and remain accessible.
+- **Never run the self-verification dev server on port 3000.** Port 3000 is reserved for the human's own manual browsing at `http://localhost:3000`. `bin/dev` defaults to `PORT=3000` and Vite defaults to `3036` (`config/vite.json`), so starting a verification server with the defaults — especially from a second worktree while another app is already running — hijacks port 3000 and the page the human has open silently flips to the app you're testing. Instead, always start the verification server on a dedicated non-3000 port pair and point the browser at it:
+
+  ```bash
+  PORT=4000 VITE_RUBY_PORT=4036 bin/dev      # or bin/dev-ssr with the same env vars
+  ```
+
+  Then have `agent-browser` (or any browser tool) navigate to `http://localhost:4000`, **not** `http://localhost:3000`. `bin/dev` honors `PORT` and vite-plugin-ruby honors `VITE_RUBY_PORT` (keeping Rails and Vite in agreement), so no file edits are needed. If you're verifying multiple worktrees at once, give each its own distinct pair (`4000`/`4036`, `4100`/`4136`, …) so they don't collide with each other either. Tear down the verification server when finished.
 - **For new pages, new layouts, or significant UI changes, take a screenshot and evaluate your own work** — confirm styling, design, visual balance, and responsiveness (desktop + mobile widths) are executed correctly. Store these verification screenshots in `tmp/screenshots/` so they're easy to find and don't pollute the repo.
