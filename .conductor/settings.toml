@@ -1,0 +1,7 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+setup = "bin/orchestrator/setup"
+run = "bin/dev"
+archive = "bin/orchestrator/teardown"
+run_mode = "concurrent"

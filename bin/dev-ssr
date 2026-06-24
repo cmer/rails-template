@@ -1,7 +1,16 @@
 #!/usr/bin/env sh
 
-export PORT="${PORT:-3000}"
+# Resolve a workspace-aware Rails port (same as bin/dev).
+. bin/orchestrator/env
+PORT="$(bin/orchestrator/dev-port)"
+export PORT
+
 export INERTIA_SSR=1
+
+if workspace_detection_present; then
+  VITE_PORT=$((PORT + 1))
+  export VITE_PORT
+fi
 
 # Build the SSR bundle once before starting the process group, so the
 # Node SSR server has something to load on first start. The watcher in

@@ -10,7 +10,7 @@ Rails 8 + React 19 + PostgreSQL, bridged by **Inertia.js v3** (no separate API l
 
 Background jobs, caching, and WebSockets use the Rails 8 "Solid" trifecta (Solid Queue, Solid Cache, Solid Cable), all database-backed. **All four share the single PostgreSQL database** (`<app_name>_<env>`, where `app_name` is derived from the repo folder name) — there are no separate cache/cable/queue databases, no `db/cache_schema.rb` / `db/cable_schema.rb` / `db/queue_schema.rb`, and `config/cache.yml` / `config/cable.yml` / `config/queue.yml` have no separate connection blocks. Override the connection via `DATABASE_URL` or the `DATABASE_USER` / `DATABASE_PASSWORD` / `DATABASE_HOST` / `DATABASE_PORT` env vars (see `config/database.yml`).
 
-**Per-app, per-worktree DB naming.** `config/database.yml` derives the development *and* test DB names automatically, so an app forked from this template gets its own databases with no edits to the file. The name has two parts: an `app_name` (the repository's own folder name, sanitized to a legal Postgres identifier — `coolapp`, or `build-new` → `build_new`) and a worktree suffix. In the **main checkout** (where `.git` is a directory) the suffix is empty: `<app_name>_development` / `<app_name>_test`. In a **git worktree** (where `.git` is a pointer file written by `git worktree add`, e.g. Conductor workspaces) the worktree's own folder name is appended — `<app_name>_development_<worktree>` / `<app_name>_test_<worktree>` — so parallel worktrees never share or clobber each other's schemas, and parallel `bin/rails test` runs no longer collide on a shared test DB. `app_name` is found from the main repo even inside a worktree: the worktree's `.git` pointer (`gitdir: <repo>/.git/worktrees/<wt>`) is read and walked up to the main repo root, whose folder name becomes `app_name`. This matters when forking this template into a new app: if two checkouts shared a dev DB, migrations from one would land in the other and `db:schema:dump` would commit phantom tables. Override the development name entirely with `DATABASE_NAME`. Staging/production are named the same way but are overridden by `DATABASE_URL` on real deploys, so the derived name there is only a local fallback.
+**Per-app, per-worktree DB naming.** `config/database.yml` derives the development *and* test DB names automatically, so an app forked from this template gets its own databases with no edits to the file. The name has two parts: an `app_name` (the main repository's folder name, sanitized to a legal Postgres identifier — `coolapp`, or `build-new` → `build_new`) and a worktree suffix. In the **main checkout** (where `.git` is a directory) the suffix is empty: `<app_name>_development` / `<app_name>_test`. In an **orchestrator workspace**, `bin/orchestrator/setup` persists the workspace name to `tmp/WORKSPACE_NAME` and exports `APP_WORKSPACE_NAME`; `database.yml` reads either source and appends it — `<app_name>_development_<workspace>` / `<app_name>_test_<workspace>` — so parallel workspaces never share or clobber each other's schemas, and parallel `bin/rails test` runs no longer collide on a shared test DB. The workspace name comes from the orchestrator (not the folder name), so DB names stay stable even if a worktree folder is renamed. `app_name` is found from the main repo even inside a worktree: the worktree's `.git` pointer (`gitdir: <repo>/.git/worktrees/<wt>`) is read and walked up to the main repo root, whose folder name becomes `app_name`. Override the development name entirely with `DATABASE_NAME`. Staging/production are named the same way but are overridden by `DATABASE_URL` on real deploys, so the derived name there is only a local fallback.
 
 ## Commands
 
@@ -23,6 +23,22 @@ npm run check          # TypeScript type checking
 bin/rubocop            # Ruby linting (rubocop-rails-omakase)
 bin/brakeman           # Security scanning
 ```
+
+## Agent orchestrators (worktree isolation)
+
+This repo is configured for two git-worktree orchestrators: **Conductor** (`.conductor/settings.toml`) and **Superconductor** (`.superconductor/config.json`). Both create a git worktree per workspace and run the same three lifecycle commands:
+
+| Lifecycle | Command | What it does |
+|-----------|---------|--------------|
+| setup | `bin/orchestrator/setup` | `bundle install`, `npm install`, `db:prepare` (dev + test); allocates a port block under Superconductor |
+| run | `bin/dev` | Workspace-aware dev server (Rails + Vite + jobs) |
+| teardown | `bin/orchestrator/teardown` | Drops the worktree's dev + test databases; releases the port block under Superconductor |
+
+All orchestrator scripts live under `bin/orchestrator/`; `bin/orchestrator/env` is the single source of truth for detection (`CONDUCTOR_WORKSPACE_PATH`, `SUPERCONDUCTOR_WORKTREE_PATH`). Detection vars: Conductor sets `CONDUCTOR_WORKSPACE_PATH` / `CONDUCTOR_PORT`; Superconductor sets `SUPERCONDUCTOR_WORKTREE_PATH` (no port).
+
+**Database isolation.** `config/database.yml` reads a single project-level env var (`APP_WORKSPACE_NAME`) or falls back to `tmp/WORKSPACE_NAME` (a file persisted once by `bin/orchestrator/setup`). The `app_name` prefix comes from the main repo's folder name (stable across worktrees). Each workspace gets its own `*_development_<workspace>` / `*_test_<workspace>` databases. The workspace name is stable across folder renames because it comes from the persisted file, not the folder. `database.yml` does not know about individual orchestrators — `bin/orchestrator/env` bridges `CONDUCTOR_WORKSPACE_NAME` / `SUPERCONDUCTOR_WORKSPACE_NAME` → the project env var. `bin/orchestrator/psql` opens a psql shell on the current worktree's development database.
+
+**Ports.** `bin/orchestrator/dev-port` resolves the Rails port: `$CONDUCTOR_PORT` (Conductor) → project-allocated 10-port block (Superconductor, via `bin/orchestrator/port`, stored under `~/.superset/port-allocations/`, labeled in `.superset/ports.json`) → puma discovery → `$PORT` → `3000`. Under an orchestrator, `bin/dev` also pins Vite to `PORT + 1`; outside one it leaves Vite to auto-pick `5173`. `.superset/ports.json` and `.conductor/settings.local.toml` are gitignored.
 
 ## Merging to main triggers a deployment
 

@@ -1,0 +1,52 @@
+#!/usr/bin/env sh
+# Outputs the Rails dev server port for this workspace.
+#
+# Resolution chain (order matters):
+#   1. $CONDUCTOR_PORT          — Conductor provides the first port in its range
+#   2. project port allocation  — Superconductor (10-port block, see bin/orchestrator/port)
+#   3. puma process discovery   — fallback when no port env var is available
+#   4. $PORT                    — generic env var (e.g. `PORT=4000 bin/dev`)
+#   5. 3000                     — default
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$DIR/env"
+
+discover_puma_port() {
+  ws="$(basename "$PWD")"
+  ps -Ao args= 2>/dev/null | awk -v ws="$ws" '
+    /^puma/ && $0 ~ "\\["ws"\\]" {
+      if (match($0, /tcp:[^:]*:[0-9]+/)) {
+        p = substr($0, RSTART, RLENGTH)
+        sub(/.*:/, "", p)
+        print p
+        exit
+      }
+    }'
+}
+
+if [ -n "${CONDUCTOR_PORT:-}" ]; then
+  echo "$CONDUCTOR_PORT"
+elif workspace_needs_port_allocation; then
+  allocated="$(bin/orchestrator/port get 2>/dev/null || true)"
+  if [ -n "$allocated" ]; then
+    echo "$allocated"
+  else
+    discovered="$(discover_puma_port)"
+    if [ -n "$discovered" ]; then
+      bin/orchestrator/port reserve "$discovered"
+    else
+      bin/orchestrator/port allocate
+    fi
+  fi
+elif [ -n "${CONDUCTOR_WORKSPACE_PATH:-}" ] || [ -n "${CONDUCTOR_ROOT_PATH:-}" ]; then
+  discovered="$(discover_puma_port)"
+  if [ -n "$discovered" ]; then
+    echo "$discovered"
+  else
+    echo "${PORT:-3000}"
+  fi
+elif [ -n "${PORT:-}" ]; then
+  echo "$PORT"
+else
+  echo "3000"
+fi

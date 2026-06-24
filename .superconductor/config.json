@@ -1,0 +1,5 @@
+{
+  "setup": ["bin/orchestrator/setup"],
+  "run": ["bin/dev"],
+  "teardown": ["bin/orchestrator/teardown"]
+}

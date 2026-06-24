@@ -15,8 +15,8 @@ default: &default
   # connect (multi-threaded fork unsafe via Kerberos/XPC). Disable explicitly.
   gssencmode: disable
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: <%= ENV.fetch("DATABASE_USER") { ENV["USER"] } %>
-  password: <%= ENV["DATABASE_PASSWORD"] %>
+  username: <%= ENV.fetch("DATABASE_USER") { "postgres" } %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD") { "password" } %>
   host: <%= ENV.fetch("DATABASE_HOST") { "localhost" } %>
   port: <%= ENV.fetch("DATABASE_PORT") { 5432 } %>
 
@@ -27,22 +27,28 @@ default: &default
   # Database names are derived automatically so that an app forked from this
   # template gets its OWN databases with no edits to this file:
   #
-  #   app_name        - this repository's folder name, sanitized to a legal
+  #   app_name        - the main repository's folder name, sanitized to a legal
   #                     Postgres identifier ("coolapp"; "build-new" -> "build_new").
-  #   worktree_suffix - "" in the main checkout; "_<worktree-folder>" inside a
-  #                     git worktree (e.g. a Conductor workspace), so parallel
-  #                     worktrees get fully isolated development AND test DBs and
-  #                     never clobber each other's schema.
+  #                     Inside a git worktree the ".git" pointer is read to find
+  #                     the main repo root, so app_name is always the SAME repo
+  #                     name regardless of what the worktree folder is called.
   #
-  #   main checkout of "coolapp"      -> coolapp_development         / coolapp_test
-  #   worktree "newyork" of "coolapp" -> coolapp_development_newyork / coolapp_test_newyork
+  #   worktree_suffix - "" in the main checkout; "_<workspace>" inside an
+  #                     orchestrator worktree, so parallel workspaces get fully
+  #                     isolated development AND test databases. The workspace
+  #                     name comes from (in priority order):
+  #                       1. APP_WORKSPACE_NAME env var — set by
+  #                          bin/orchestrator/setup, which bridges the
+  #                          orchestrator-specific env var into this single
+  #                          project-level name
+  #                       2. tmp/WORKSPACE_NAME file — persisted once by
+  #                          bin/orchestrator/setup, stable across folder renames
+  #                     This file does NOT know about individual orchestrators.
+  #                     If neither source is present, worktree_suffix is empty
+  #                     (main checkout behavior).
   #
-  # Finding app_name:
-  #   * main checkout - ".git" is a directory, so app_name is this folder's name.
-  #   * worktree      - ".git" is a pointer file holding
-  #                     "gitdir: <repo>/.git/worktrees/<wt>"; we read it, walk up
-  #                     to the MAIN repo root, use ITS folder name, and append the
-  #                     worktree folder name as the suffix.
+  #   main checkout of "coolapp"       -> coolapp_development         / coolapp_test
+  #   workspace "newyork" of "coolapp" -> coolapp_development_newyork / coolapp_test_newyork
   #
   # Override the development name entirely with DATABASE_NAME. Staging/production
   # are named the same way but are overridden by DATABASE_URL on real deploys, so
@@ -57,13 +63,16 @@ default: &default
     gitdir          = File.expand_path(raw_gitdir, app_root)
     main_repo_root  = File.expand_path("../../..", gitdir) # <repo>/.git/worktrees/<wt> -> <repo>
     app_name        = sanitize.call(File.basename(main_repo_root))
-    worktree_suffix = "_#{sanitize.call(File.basename(app_root))}"
   else
     app_name        = sanitize.call(File.basename(app_root))
-    worktree_suffix = ""
   end
-
   app_name = "app" if app_name.empty?
+
+  workspace_name_file = File.join(app_root, "tmp", "WORKSPACE_NAME")
+  workspace = ENV["APP_WORKSPACE_NAME"]
+  workspace = File.read(workspace_name_file).strip if workspace.to_s.empty? && File.file?(workspace_name_file)
+  workspace       = nil if workspace.to_s.empty?
+  worktree_suffix = workspace ? "_#{sanitize.call(workspace)}" : ""
 %>
 
 development:

@@ -1,0 +1,64 @@
+#!/usr/bin/env sh
+# Single source of truth for orchestrator workspace detection.
+# Sourced by the other scripts under bin/orchestrator/ (and by bin/dev).
+# Do not duplicate orchestrator detection logic elsewhere.
+#
+# Supported orchestrators: Conductor, Superconductor.
+
+WORKSPACE_NAME_FILE="tmp/WORKSPACE_NAME"
+
+# --- Workspace name resolution ---
+# Priority: orchestrator env var > persisted file > detection + folder basename.
+# The persisted file (tmp/WORKSPACE_NAME) is written once by bin/orchestrator/setup
+# and is the primary source for config/database.yml, so the DB name stays stable
+# even if the worktree folder is renamed after setup.
+
+read_persisted_workspace_name() {
+  [ -f "$WORKSPACE_NAME_FILE" ] || return 1
+  name="$(sed -n '1p' "$WORKSPACE_NAME_FILE")"
+  [ -n "$name" ] || return 1
+  printf '%s\n' "$name"
+}
+
+workspace_env_name() {
+  name="${CONDUCTOR_WORKSPACE_NAME:-${SUPERCONDUCTOR_WORKSPACE_NAME:-}}"
+  [ -n "$name" ] || return 1
+  printf '%s\n' "$name"
+}
+
+workspace_name() {
+  workspace_env_name ||
+    read_persisted_workspace_name ||
+    { workspace_detection_present && basename "$PWD"; }
+}
+
+# Write the workspace name to tmp/WORKSPACE_NAME. Always overwrites: during the
+# setup hook the orchestrator env vars are fresh, so an existing file left over
+# from a previous/aborted workspace must not be trusted.
+persist_workspace_name() {
+  name="$(workspace_name 2>/dev/null || true)"
+  [ -n "$name" ] || return 1
+
+  mkdir -p "$(dirname "$WORKSPACE_NAME_FILE")"
+  printf '%s\n' "$name" > "$WORKSPACE_NAME_FILE"
+  printf '%s\n' "$name"
+}
+
+# Returns true if any supported orchestrator is active.
+workspace_detection_present() {
+  [ -n "${CONDUCTOR_WORKSPACE_PATH:-}" ] ||
+    [ -n "${CONDUCTOR_ROOT_PATH:-}" ] ||
+    [ -n "${SUPERCONDUCTOR_WORKTREE_PATH:-}" ]
+}
+
+# Returns true if the active orchestrator does NOT provide a port, meaning the
+# project must allocate its own contiguous 10-port block.
+# Conductor provides $CONDUCTOR_PORT; Superconductor does not.
+workspace_needs_port_allocation() {
+  [ -n "${SUPERCONDUCTOR_WORKTREE_PATH:-}" ]
+}
+
+# Workspace root path. Prefers the orchestrator-provided path, falls back to $PWD.
+workspace_path() {
+  printf '%s\n' "${CONDUCTOR_WORKSPACE_PATH:-${SUPERCONDUCTOR_WORKTREE_PATH:-$PWD}}"
+}

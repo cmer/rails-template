@@ -1,6 +1,21 @@
 #!/usr/bin/env sh
 
-export PORT="${PORT:-3000}"
+# Resolve a workspace-aware Rails port:
+#   - Conductor provides $CONDUCTOR_PORT
+#   - Superconductor uses a project-allocated 10-port block (bin/orchestrator/port)
+#   - otherwise falls back to $PORT or 3000
+. bin/orchestrator/env
+PORT="$(bin/orchestrator/dev-port)"
+export PORT
+
+# Under an orchestrator, pin Vite to the next port in the workspace block so it
+# stays inside the allocated range (and matches .superset/ports.json). Plain
+# local dev leaves VITE_PORT unset, so Vite auto-picks 5173 and records the real
+# port in tmp/rails-vite.json (Rails reads it from there).
+if workspace_detection_present; then
+  VITE_PORT=$((PORT + 1))
+  export VITE_PORT
+fi
 
 if command -v overmind 1> /dev/null 2>&1
 then

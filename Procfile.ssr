@@ -1,5 +1,5 @@
-web: bin/rails s
-vite: npx vite
+web: bin/rails s -p ${PORT:-3000} -b 0.0.0.0
+vite: npx vite ${VITE_PORT:+--port $VITE_PORT}
 jobs: bin/jobs
 ssr_build: npx vite build --ssr --watch
 ssr: node ssr/ssr.js

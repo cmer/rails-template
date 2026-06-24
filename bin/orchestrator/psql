@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+# Connect to this workspace's PostgreSQL database with psql.
+#
+# Reads APP_WORKSPACE_NAME / tmp/WORKSPACE_NAME to derive the same
+# database name that config/database.yml resolves — so this always targets the
+# correct worktree-isolated development database.
+#
+# Usage:
+#   bin/orchestrator/psql                                  # interactive shell
+#   bin/orchestrator/psql -c "SELECT count(*) FROM users"  # one-shot query
+#   bin/orchestrator/psql --csv -c "…" > out.csv           # CSV export
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$DIR/../.."
+. bin/orchestrator/env
+
+workspace_name="$(workspace_name 2>/dev/null || true)"
+if [ -n "$workspace_name" ]; then
+  export APP_WORKSPACE_NAME="$workspace_name"
+fi
+
+db="$(ruby -ryaml -rerb -e 'print YAML.safe_load(ERB.new(File.read("config/database.yml")).result, aliases: true)["development"]["database"]')"
+
+PGUSER="${DATABASE_USER:-postgres}" \
+PGHOST="${DATABASE_HOST:-localhost}" \
+PGPORT="${DATABASE_PORT:-5432}" \
+PGPASSWORD="${DATABASE_PASSWORD:-password}" \
+  exec psql -d "$db" "$@"

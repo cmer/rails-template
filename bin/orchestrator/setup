@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+#/ Usage: bin/orchestrator/setup
+#/
+#/ Prepare a workspace after its git worktree is created.
+#/ Called by orchestrators (Conductor, Superconductor) during their setup hook.
+#/ Idempotent — safe to run repeatedly.
+
+set -e
+cd "$(dirname "$0")/../.."
+. bin/orchestrator/env
+
+workspace_name="$(persist_workspace_name 2>/dev/null || true)"
+
+if [ -z "$workspace_name" ] && workspace_detection_present; then
+  echo "ERROR: running inside an orchestrator but could not resolve the workspace name." >&2
+  echo "Refusing to set up the shared database from a managed worktree." >&2
+  exit 1
+fi
+
+if [ -n "$workspace_name" ]; then
+  export APP_WORKSPACE_NAME="$workspace_name"
+fi
+
+if workspace_needs_port_allocation; then
+  echo "Reserving workspace ports..."
+  bin/orchestrator/port allocate >/dev/null
+fi
+
+echo "Installing Ruby dependencies..."
+bundle check || bundle install
+
+echo "Installing JavaScript dependencies..."
+npm install
+
+echo "Preparing databases (${workspace_name:-shared})..."
+bin/rails db:prepare
+RAILS_ENV=test bin/rails db:prepare
+
+echo "Workspace setup complete!"
