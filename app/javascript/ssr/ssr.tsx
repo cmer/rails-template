@@ -1,12 +1,7 @@
-import { createInertiaApp } from '@inertiajs/react'
+import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react'
 import createServer from '@inertiajs/react/server'
-import { createElement, ReactNode } from 'react'
+import { createElement } from 'react'
 import ReactDOMServer from 'react-dom/server'
-
-type ResolvedComponent = {
-  default: ReactNode
-  layout?: (page: ReactNode) => ReactNode
-}
 
 createServer((page) =>
   createInertiaApp({

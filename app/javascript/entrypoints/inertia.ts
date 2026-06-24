@@ -1,13 +1,8 @@
-import { createInertiaApp } from '@inertiajs/react'
-import { createElement, type ReactNode } from 'react'
+import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react'
+import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { installStandaloneRecovery } from '@/lib/standalone-recovery'
-
-type ResolvedComponent = {
-  default: ReactNode
-  layout?: (page: ReactNode) => ReactNode
-}
 
 // Recover iOS Home Screen (standalone PWA) sessions from a dead/suspended
 // WebKit context. Client-only — never imported by the SSR entrypoint.
