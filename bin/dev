@@ -17,22 +17,14 @@ if workspace_detection_present; then
   export VITE_PORT
 fi
 
-if command -v overmind 1> /dev/null 2>&1
+if ! command -v overmind 1> /dev/null 2>&1
 then
-  overmind start -f Procfile.dev "$@"
-  exit $?
+  if gem list --no-installed --exact --silent foreman; then
+    echo "Installing foreman..."
+    gem install foreman
+  fi
+
+  exec foreman start -f Procfile.dev "$@"
 fi
 
-if command -v hivemind 1> /dev/null 2>&1
-then
-  echo "Hivemind is installed. Running the application with Hivemind..."
-  exec hivemind Procfile.dev "$@"
-  exit $?
-fi
-
-if gem list --no-installed --exact --silent foreman; then
-  echo "Installing foreman..."
-  gem install foreman
-fi
-
-foreman start -f Procfile.dev "$@"
+exec overmind start -f Procfile.dev "$@"

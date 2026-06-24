@@ -15,6 +15,13 @@ FileUtils.chdir APP_ROOT do
   puts "== Installing dependencies =="
   system("bundle check") || system!("bundle install")
 
+  unless system("command -v overmind > /dev/null 2>&1")
+    puts "\n== Missing Overmind =="
+    puts "bin/dev will fall back to Foreman, but Overmind is the preferred process runner:"
+    puts "  mise install overmind"
+    puts "  # or see https://github.com/DarthSim/overmind"
+  end
+
   # puts "\n== Copying sample files =="
   # unless File.exist?("config/database.yml")
   #   FileUtils.cp "config/database.yml.sample", "config/database.yml"

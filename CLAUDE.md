@@ -16,7 +16,7 @@ Background jobs, caching, and WebSockets use the Rails 8 "Solid" trifecta (Solid
 
 ```bash
 bin/setup              # Initial setup (bundle, db:prepare, clear tmp/logs)
-bin/dev                # Dev server (Rails :3000 + Vite :5173)
+bin/dev                # Dev server via Overmind (Rails :3000 + Vite :5173)
 bin/rails test         # Minitest
 bin/rails test:system  # Capybara + headless Chrome
 npm run check          # TypeScript type checking
@@ -31,14 +31,14 @@ This repo is configured for two git-worktree orchestrators: **Conductor** (`.con
 | Lifecycle | Command | What it does |
 |-----------|---------|--------------|
 | setup | `bin/orchestrator/setup` | `bundle install`, `npm install`, `db:prepare` (dev + test); allocates a port block under Superconductor |
-| run | `bin/dev` | Workspace-aware dev server (Rails + Vite + jobs) |
+| run | `bin/dev` | Workspace-aware Overmind process group (Rails + Vite + jobs) |
 | teardown | `bin/orchestrator/teardown` | Drops the worktree's dev + test databases; releases the port block under Superconductor |
 
 All orchestrator scripts live under `bin/orchestrator/`; `bin/orchestrator/env` is the single source of truth for detection (`CONDUCTOR_WORKSPACE_PATH`, `SUPERCONDUCTOR_WORKTREE_PATH`). Detection vars: Conductor sets `CONDUCTOR_WORKSPACE_PATH` / `CONDUCTOR_PORT`; Superconductor sets `SUPERCONDUCTOR_WORKTREE_PATH` (no port).
 
 **Database isolation.** `config/database.yml` reads a single project-level env var (`APP_WORKSPACE_NAME`) or falls back to `tmp/WORKSPACE_NAME` (a file persisted once by `bin/orchestrator/setup`). The `app_name` prefix comes from the main repo's folder name (stable across worktrees). Each workspace gets its own `*_development_<workspace>` / `*_test_<workspace>` databases. The workspace name is stable across folder renames because it comes from the persisted file, not the folder. `database.yml` does not know about individual orchestrators — `bin/orchestrator/env` bridges `CONDUCTOR_WORKSPACE_NAME` / `SUPERCONDUCTOR_WORKSPACE_NAME` → the project env var. `bin/orchestrator/psql` opens a psql shell on the current worktree's development database.
 
-**Ports.** `bin/orchestrator/dev-port` resolves the Rails port: `$CONDUCTOR_PORT` (Conductor) → project-allocated 10-port block (Superconductor, via `bin/orchestrator/port`, stored under `~/.superset/port-allocations/`, labeled in `.superset/ports.json`) → puma discovery → `$PORT` → `3000`. Under an orchestrator, `bin/dev` also pins Vite to `PORT + 1`; outside one it leaves Vite to auto-pick `5173`. `.superset/ports.json` and `.conductor/settings.local.toml` are gitignored.
+**Ports.** `bin/orchestrator/dev-port` resolves the Rails port: `$CONDUCTOR_PORT` (Conductor) → project-allocated 10-port block (Superconductor, via `bin/orchestrator/port`, stored under `~/.superset/port-allocations/`, labeled in `.superset/ports.json`) → puma discovery → `$PORT` → `3000`. Under an orchestrator, `bin/dev` runs the process group with Overmind and also pins Vite to `PORT + 1`; outside one it leaves Vite to auto-pick `5173`. `.superset/ports.json` and `.conductor/settings.local.toml` are gitignored.
 
 ## Merging to main triggers a deployment
 
