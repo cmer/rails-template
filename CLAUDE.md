@@ -4,7 +4,7 @@ Guidance for Claude Code (claude.ai/code) working in this repo.
 
 ## Tech Stack
 
-Rails 8 + React 19 + PostgreSQL, bridged by **Inertia.js** (no separate API layer). TypeScript, Vite 7, Propshaft. Ruby 3.3.6, Node 22.12+.
+Rails 8 + React 19 + PostgreSQL, bridged by **Inertia.js v3** (no separate API layer). TypeScript 6, Vite 8, Propshaft. Ruby 4.0.5, Node 22.12+.
 
 **Tailwind CSS v4** is wired up via `@tailwindcss/vite`. The app uses a shadcn-backed design system (`components.json`, semantic theme tokens, `components/ui`, dark-mode theming, the `cn()` utility, shared components under `app/frontend/components/`) — see the "Design system" section below and the live reference at `/admin/design-system`.
 

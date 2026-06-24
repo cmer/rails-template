@@ -7,7 +7,7 @@ This template is meant to be a practical starting point for product apps: authen
 ## What's Included
 
 - Rails 8 + Inertia.js, with React pages in `app/javascript/pages`
-- React 19 + TypeScript + Vite 7
+- React 19 + TypeScript 6 + Vite 8
 - Tailwind CSS v4 and shadcn components in `app/frontend/components/ui`
 - Live design-system reference at `/admin/design-system`
 - Session authentication, signup, password reset, profile email/password updates
@@ -27,7 +27,7 @@ bin/dev        # starts Rails (:3000), Vite (:3036), and Solid Queue
 
 Requires:
 
-- Ruby 3.3.6
+- Ruby 4.0.5
 - Node 22.12+
 - PostgreSQL 10+
 

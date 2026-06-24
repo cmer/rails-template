@@ -15,8 +15,8 @@ A single-server cluster with all roles is fine for a small app. Split them later
 
 Make sure the server image has compatible Ruby and Node versions — this app expects:
 
-- Ruby `3.3.6` (from `.ruby-version`)
-- Node `22.12.0` (from `.nvmrc`)
+- Ruby `4.0.5` (from `.tool-versions`)
+- Node `22.12.0` (from `.tool-versions`)
 
 ## 2. Create the app
 
