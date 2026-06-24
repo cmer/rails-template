@@ -35,12 +35,15 @@ Requires:
 
 The design system is shadcn-backed. Use `components.json` as the source of truth for aliases, component paths, and theme configuration.
 
+This repo includes the shadcn/ui AI skill at `.agents/skills/shadcn`, locked in `skills-lock.json`. The skill reads `components.json` and gives compatible agents project-aware shadcn context for component APIs, installed components, theming, registries, and CLI workflows.
+
 Useful commands:
 
 ```bash
 npx shadcn@latest info --json
 npx shadcn@latest add button --diff
 npx shadcn@latest add dialog -y
+npx shadcn@latest docs button dialog select
 ```
 
 The live reference page is available at `/admin/design-system` for admin users.

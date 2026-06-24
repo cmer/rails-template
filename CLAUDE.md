@@ -209,7 +209,7 @@ When implementing UI:
 
 4. **Do not fork component APIs casually.** Use the variant names and props provided by the installed shadcn component source. If the app needs a new reusable variant, update the shadcn component intentionally and document it on `/admin/design-system`.
 
-5. **Use the shadcn sidekick skill.** Future agents should have the shadcn skill installed with `pnpm dlx skills add shadcn/ui`; it knows how to read `components.json`, inspect installed components, and follow shadcn conventions.
+5. **Use the project-local shadcn skill.** The shadcn/ui AI skill is installed at `.agents/skills/shadcn` and locked in `skills-lock.json`. It reads `components.json`, inspects installed components, and gives agents shadcn-aware component, styling, registry, and CLI guidance.
 
 6. **Re-run `design-system` for system work.** Use this skill to refresh the reference page, apply a shadcn preset, re-scan migration candidates, or update the managed instructions.
 
