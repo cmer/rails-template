@@ -59,7 +59,7 @@ end
 
 gem "inertia_rails", "~> 3.11"
 
-gem "vite_rails", "~> 3.0"
+gem "rails_vite", "~> 0.2"
 
 # Generate sitemap.xml so search engines and LLM crawlers can discover
 # every public page. See config/sitemap.rb. Refresh with:

@@ -11,15 +11,18 @@
 #     policy.img_src     :self, :https, :data
 #     policy.object_src  :none
 #     policy.script_src  :self, :https
-# Allow @vite/client to hot reload javascript changes in development
-#    policy.script_src *policy.script_src, :unsafe_eval, "http://#{ ViteRuby.config.host_with_port }" if Rails.env.development?
+# Allow the Vite dev server (@vite/client + HMR) in development. RailsVite.dev_server_csp_source
+# resolves per request, so it tracks Vite's actual port and adds nothing when the server is down.
+#    if Rails.env.development?
+#      policy.script_src  *policy.script_src, :unsafe_eval, RailsVite.dev_server_csp_source
+#      policy.style_src   *policy.style_src, RailsVite.dev_server_csp_source
+#      policy.connect_src *policy.connect_src, RailsVite.dev_server_csp_source(websocket: true)
+#    end
 
 # You may need to enable this in production as well depending on your setup.
 #    policy.script_src *policy.script_src, :blob if Rails.env.test?
 
 #     policy.style_src   :self, :https
-# Allow @vite/client to hot reload style changes in development
-#    policy.style_src *policy.style_src, :unsafe_inline if Rails.env.development?
 
 #     # Specify URI for violation reports
 #     # policy.report_uri "/csp-violation-report-endpoint"

@@ -11,7 +11,7 @@ require "socket"
 # browser-globals-at-top-level mistakes that only surface during SSR.
 class SsrSmokeTest < ActiveSupport::TestCase
   PORT = 13714
-  SSR_BUNDLE = Rails.root.join("public/vite-ssr/ssr.js")
+  SSR_BUNDLE = Rails.root.join("ssr/ssr.js")
   STARTUP_TIMEOUT = 15
 
   setup do
@@ -24,8 +24,8 @@ class SsrSmokeTest < ActiveSupport::TestCase
             "or `npm run ssr` before running this test"
     end
 
-    unless system("bin/vite build --ssr", chdir: Rails.root.to_s)
-      flunk "Failed to build SSR bundle — check `bin/vite build --ssr` output"
+    unless system("npx vite build --ssr", chdir: Rails.root.to_s)
+      flunk "Failed to build SSR bundle — check `npx vite build --ssr` output"
     end
 
     @ssr_pid = Process.spawn("node", SSR_BUNDLE.to_s, out: File::NULL, err: File::NULL)

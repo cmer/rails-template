@@ -16,7 +16,7 @@ Background jobs, caching, and WebSockets use the Rails 8 "Solid" trifecta (Solid
 
 ```bash
 bin/setup              # Initial setup (bundle, db:prepare, clear tmp/logs)
-bin/dev                # Dev server (Rails :3000 + Vite :3036)
+bin/dev                # Dev server (Rails :3000 + Vite :5173)
 bin/rails test         # Minitest
 bin/rails test:system  # Capybara + headless Chrome
 npm run check          # TypeScript type checking
@@ -68,7 +68,7 @@ The `@` path alias resolves to `app/frontend/` in both Vite and TypeScript confi
 ### Key files
 
 - `app/javascript/entrypoints/inertia.ts` — React mount point, page resolution
-- `app/javascript/ssr/ssr.tsx` — SSR mount point (mirrors `inertia.ts` but renders to string); auto-detected by vite-plugin-ruby
+- `app/javascript/ssr/ssr.tsx` — SSR mount point (mirrors `inertia.ts` but renders to string); wired up via the `ssr:` option in `vite.config.ts`
 - `app/javascript/entrypoints/application.css` — Tailwind import, `@source` directive, shadcn imports, and theme tokens
 - `app/views/layouts/application.html.erb` — Vite client, Inertia entrypoint, `inertia_ssr_head`
 - `app/controllers/application_controller.rb` — `inertia_share` for shared props
@@ -123,7 +123,7 @@ Inertia SSR is wired up so search engines and LLM crawlers (GPTBot, ClaudeBot, P
 
 - `config/initializers/inertia_rails.rb` — `ssr_enabled` is on in production by default, off in development. Override with `INERTIA_SSR=1` (force on) or `INERTIA_SSR=0` (force off).
 - `vite.config.ts` — `ssr: { noExternal: true }` bundles all dependencies into the SSR output so the Node process boots without needing `node_modules` resolution at runtime.
-- `bin/vite build --ssr` produces `public/vite-ssr/ssr.js` (vite-plugin-ruby's default SSR output path); `bin/vite ssr` runs it.
+- `npx vite build --ssr` (or `npm run build:ssr`) produces `ssr/ssr.js` (rails-vite-plugin's default `ssrOutDir`); `node ssr/ssr.js` (or `npm run ssr`) runs it.
 
 **Local SSR testing.** Run `bin/dev-ssr` instead of `bin/dev`. It builds the SSR bundle, sets `INERTIA_SSR=1`, and runs Rails + Vite + Solid Queue + an SSR build watcher + the Node SSR server together via `Procfile.ssr`. View source on a page — the `<div id="app">` should contain real markup, not an empty container.
 
@@ -136,7 +136,7 @@ Production deployment is host-specific (Render, Fly, Heroku, container, bare met
 - Anything imported by a page component runs in Node during SSR. **Never reference `window`, `document`, `localStorage`, or other browser-only globals at module top-level or during render.** Guard with `typeof window !== "undefined"` or move the access into a `useEffect`.
 - Don't add code paths in `inertia.ts` (client) without mirroring them in `ssr.tsx` if they affect rendered output (e.g. shared providers, default layouts). The two entrypoints must produce the same component tree.
 - Avoid randomness, `Date.now()`, and other non-deterministic values during render — they cause hydration mismatches.
-- After adding heavy native deps, re-run `bin/vite build --ssr` locally; if it fails because of an ESM/CJS issue, add the offending package to `ssr.noExternal` exceptions in `vite.config.ts` (or leave `noExternal: true` and pin the package version that works).
+- After adding heavy native deps, re-run `npx vite build --ssr` locally; if it fails because of an ESM/CJS issue, add the offending package to `ssr.noExternal` exceptions in `vite.config.ts` (or leave `noExternal: true` and pin the package version that works).
 
 ## Crawler discovery: sitemap.xml, robots.txt, llms.txt
 
@@ -224,11 +224,11 @@ Source files are declared explicitly via an `@source` directive in `application.
 
 - **After implementing a significant feature, ensure we have test coverage for that feature** and that the full test suite still passes 100%. Run `bin/rails test` (and `bin/rails test:system` for system tests) before reporting the task as complete.
 - **When making any front-end UI changes or features, verify with the `agent-browser` skill** that all user paths and flows actually work end-to-end and remain accessible.
-- **Never run the self-verification dev server on port 3000.** Port 3000 is reserved for the human's own manual browsing at `http://localhost:3000`. `bin/dev` defaults to `PORT=3000` and Vite defaults to `3036` (`config/vite.json`), so starting a verification server with the defaults — especially from a second worktree while another app is already running — hijacks port 3000 and the page the human has open silently flips to the app you're testing. Instead, always start the verification server on a dedicated non-3000 port pair and point the browser at it:
+- **Never run the self-verification dev server on port 3000.** Port 3000 is reserved for the human's own manual browsing at `http://localhost:3000`. `bin/dev` defaults to `PORT=3000`, so starting a verification server with the default — especially from a second worktree while another app is already running — hijacks port 3000 and the page the human has open silently flips to the app you're testing. Instead, always start the verification server on a dedicated non-3000 Rails port and point the browser at it:
 
   ```bash
-  PORT=4000 VITE_RUBY_PORT=4036 bin/dev      # or bin/dev-ssr with the same env vars
+  PORT=4000 bin/dev      # or bin/dev-ssr with the same env var
   ```
 
-  Then have `agent-browser` (or any browser tool) navigate to `http://localhost:4000`, **not** `http://localhost:3000`. `bin/dev` honors `PORT` and vite-plugin-ruby honors `VITE_RUBY_PORT` (keeping Rails and Vite in agreement), so no file edits are needed. If you're verifying multiple worktrees at once, give each its own distinct pair (`4000`/`4036`, `4100`/`4136`, …) so they don't collide with each other either. Tear down the verification server when finished.
+  Then have `agent-browser` (or any browser tool) navigate to `http://localhost:4000`, **not** `http://localhost:3000`. With rails-vite-plugin the browser talks to Rails directly (Vite only serves module assets, by absolute URL), so you only need to move Rails off 3000. The Vite dev server picks `5173` and auto-increments if it's taken; it records the real port in `tmp/rails-vite.json` and Rails reads it from there, so parallel worktrees never collide and no Vite port flag is needed. Pass `--port` to `npx vite` in `Procfile.dev` only if you want a fixed Vite port. Tear down the verification server when finished.
 - **For new pages, new layouts, or significant UI changes, take a screenshot and evaluate your own work** — confirm styling, design, visual balance, and responsiveness (desktop + mobile widths) are executed correctly. Store these verification screenshots in `tmp/screenshots/` so they're easy to find and don't pollute the repo.

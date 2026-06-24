@@ -33,8 +33,10 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-# Vite Ruby
+# rails-vite-plugin
 /public/vite*
+/ssr
+/tmp/rails-vite.json
 node_modules
 # Vite uses dotenv and suggests to ignore local-only env files. See
 # https://vitejs.dev/guide/env-and-mode.html#env-files

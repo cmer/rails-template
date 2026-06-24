@@ -63,7 +63,7 @@ App → **Processes** → Add Process. This runs the long-lived Node server that
 | --- | --- |
 | Runs on | **web** |
 | Process name | `ssr` |
-| Start command | `bin/vite ssr` |
+| Start command | `node ssr/ssr.js` |
 | Reload command | *(empty)* |
 | Stop command | *(empty)* |
 | Restart this process on every deploy | ✅ checked |
@@ -71,7 +71,7 @@ App → **Processes** → Add Process. This runs the long-lived Node server that
 
 **Why this matters:** the Inertia Rails renderer POSTs page renders to this Node process at `http://localhost:13714`. If the process isn't running, Inertia silently falls back to client-only rendering — crawlers (Google, GPTBot, ClaudeBot, etc.) see an empty `<div id="app">` on public pages.
 
-The SSR bundle itself (`public/vite-ssr/ssr.js`) is built automatically during `assets:precompile` because `config/vite.json` has `"ssrBuildEnabled": true`. No extra build step needed.
+The SSR bundle itself (`ssr/ssr.js`) is built automatically during `assets:precompile`: `lib/tasks/ssr.rake` enhances `assets:precompile` to also run `vite build --ssr` (rails-vite-plugin's own `vite:build` only builds the client bundle). No extra build step needed.
 
 ## 7. Create the jobs process
 
@@ -90,7 +90,7 @@ App → **Deploy**. Hatchbox will:
 
 1. Pull the latest commit
 2. Run `bundle install` and `npm install` (or `bun install`)
-3. Run `assets:precompile` — produces both `public/vite/` (client) and `public/vite-ssr/ssr.js` (SSR)
+3. Run `assets:precompile` — produces both `public/vite/` (client) and `ssr/ssr.js` (SSR)
 4. Run `db:prepare` (migrations + seeds on first deploy)
 5. Boot the web process + restart the `ssr` and `jobs` processes
 
@@ -103,7 +103,7 @@ App → **Deploy**. Hatchbox will:
 
 ## Troubleshooting
 
-**Blank page / empty `<div id="app">` in view source.** SSR Node process isn't running or isn't reachable. Check the `ssr` process logs. Confirm `public/vite-ssr/ssr.js` exists in the deployed release (it should, after the `ssrBuildEnabled` fix).
+**Blank page / empty `<div id="app">` in view source.** SSR Node process isn't running or isn't reachable. Check the `ssr` process logs. Confirm `ssr/ssr.js` exists in the deployed release (it should, since `lib/tasks/ssr.rake` builds it during `assets:precompile`).
 
 **`ActiveRecord::ConnectionNotEstablished` or queue/cache errors.** The single PostgreSQL DB powers all four (Active Record + Solid Queue/Cache/Cable). Make sure `DATABASE_URL` is set and the DB was provisioned in step 4.
 

@@ -34,8 +34,7 @@
       })();
     </script>
 
-    <%= vite_react_refresh_tag %>
-    <%= vite_client_tag %>
+    <%# rails-vite-plugin auto-injects @vite/client and React Fast Refresh in dev. %>
     <%= vite_stylesheet_tag "application" %>
     <%= vite_typescript_tag "inertia" %>
     <%= inertia_ssr_head %>

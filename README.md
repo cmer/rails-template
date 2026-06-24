@@ -22,7 +22,7 @@ This template is meant to be a practical starting point for product apps: authen
 ```bash
 bin/setup      # installs gems, creates and migrates the database
 npm install    # installs JS dependencies
-bin/dev        # starts Rails (:3000), Vite (:3036), and Solid Queue
+bin/dev        # starts Rails (:3000), Vite (:5173), and Solid Queue
 ```
 
 Requires:
