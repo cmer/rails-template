@@ -1,26 +1,78 @@
-# Build New
+# cmer's Rails Template
 
-A blank-slate starter for full-stack apps with **Rails 8 + Inertia.js + React 19 + PostgreSQL** — by [Brian Casel](https://buildermethods.com) at Builder Methods.
+A full-stack Rails application template with **Rails 8**, **Inertia.js**, **React 19**, **TypeScript**, **Tailwind CSS v4**, **shadcn**, and **PostgreSQL**.
 
-📚 [**Full documentation**](https://buildermethods.com/rails-react-template)
+This template is meant to be a practical starting point for product apps: authentication, admin scaffolding, a shadcn-backed design-system reference, SSR, background jobs, caching, WebSockets, and deployment notes are already wired up.
 
-## Quick start
+## What's Included
+
+- Rails 8 + Inertia.js, with React pages in `app/javascript/pages`
+- React 19 + TypeScript + Vite 7
+- Tailwind CSS v4 and shadcn components in `app/frontend/components/ui`
+- Live design-system reference at `/admin/design-system`
+- Session authentication, signup, password reset, profile email/password updates
+- Admin namespace with user index/detail pages
+- PostgreSQL as the single database for Active Record, Solid Queue, Solid Cache, and Solid Cable
+- Inertia SSR support for crawler-visible public pages
+- Minitest, system tests, RuboCop, Brakeman, and TypeScript checking
+- Hatchbox deployment notes in `docs/hatchbox-deployment-guide.md`
+
+## Quick Start
 
 ```bash
 bin/setup      # installs gems, creates and migrates the database
 npm install    # installs JS dependencies
-bin/dev        # starts Rails (:3000) + Vite (:3036)
+bin/dev        # starts Rails (:3000), Vite (:3036), and Solid Queue
 ```
 
-Requires Ruby 3.3.6, Node 20.19+ (or 22.12+), and PostgreSQL 10+.
+Requires:
 
-See the [docs](https://buildermethods.com/rails-react-template) for everything else — what's inside, how to add pages, the design system, SSR, deployment, and more.
+- Ruby 3.3.6
+- Node 22.12+
+- PostgreSQL 10+
 
-## Links
+## Design System
 
-- 💬 Direct support: [Builder Methods Pro](https://buildermethods.com/pro)
-- 📬 Free weekly newsletter: [Builder Briefing](https://buildermethods.com)
+The design system is shadcn-backed. Use `components.json` as the source of truth for aliases, component paths, and theme configuration.
 
-## License
+Useful commands:
 
-Open source. Free to use, fork, and adapt.
+```bash
+npx shadcn@latest info --json
+npx shadcn@latest add button --diff
+npx shadcn@latest add dialog -y
+```
+
+The live reference page is available at `/admin/design-system` for admin users.
+
+## Development Checks
+
+```bash
+npm run check          # TypeScript
+bin/rails test         # Rails tests
+bin/rails test:system  # System tests
+bin/rubocop            # Ruby style
+bin/brakeman           # Security scan
+```
+
+## Forking Into a Real App
+
+After creating an app from this template, search and replace the template placeholders with the real application name.
+
+Replace these strings:
+
+- `cmer's Rails Template` → your human-readable app name, for example `Acme`
+- `cmer-rails-template` → your package/app identifier, for example `acme`
+- `Starter landing page for cmer's Rails Template` → your real public landing-page description
+
+Then update the remaining app-specific details:
+
+- App name in `app/views/layouts/application.html.erb`, `app/frontend/components/MainNav.tsx`, and `app/views/pwa/manifest.json.erb`
+- Public landing-page copy in `app/javascript/pages/Home.tsx`
+- `APP_HOST`, `public/robots.txt`, and `public/llms.txt`
+- Icons in `public/`
+- Deployment-specific settings and credentials
+
+## Attribution
+
+This template was forked from [buildermethods/build-new](https://github.com/buildermethods/build-new) and adapted for cmer's shadcn design-system workflow.

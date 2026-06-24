@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils"
 import type { PageProps } from "@/types/inertia"
 
 const STORAGE_KEY = "main-nav-open"
-const BRAND = "Build New"
+const BRAND = "cmer's Rails Template"
 
 export type NavItemDef = {
   href: string

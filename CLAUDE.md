@@ -4,18 +4,18 @@ Guidance for Claude Code (claude.ai/code) working in this repo.
 
 ## Tech Stack
 
-Rails 8 + React 19 + PostgreSQL, bridged by **Inertia.js** (no separate API layer). TypeScript, Vite 7, Propshaft. Ruby 3.3.6.
+Rails 8 + React 19 + PostgreSQL, bridged by **Inertia.js** (no separate API layer). TypeScript, Vite 7, Propshaft. Ruby 3.3.6, Node 22.12+.
 
-**Tailwind CSS v4** is wired up via `@tailwindcss/vite`. The app has a complete design system (tokens, primitives, dark-mode theming, the `cn()` utility, shared components under `app/frontend/components/`) — see the "Design system" section below and the live reference at `/admin/design-system`.
+**Tailwind CSS v4** is wired up via `@tailwindcss/vite`. The app uses a shadcn-backed design system (`components.json`, semantic theme tokens, `components/ui`, dark-mode theming, the `cn()` utility, shared components under `app/frontend/components/`) — see the "Design system" section below and the live reference at `/admin/design-system`.
 
-Background jobs, caching, and WebSockets use the Rails 8 "Solid" trifecta (Solid Queue, Solid Cache, Solid Cable), all database-backed. **All four share the single PostgreSQL database** (`<app_name>_<env>`, where `app_name` is the repo's folder name — `build_new` for this template) — there are no separate cache/cable/queue databases, no `db/cache_schema.rb` / `db/cable_schema.rb` / `db/queue_schema.rb`, and `config/cache.yml` / `config/cable.yml` / `config/queue.yml` have no separate connection blocks. Override the connection via `DATABASE_URL` or the `DATABASE_USER` / `DATABASE_PASSWORD` / `DATABASE_HOST` / `DATABASE_PORT` env vars (see `config/database.yml`).
+Background jobs, caching, and WebSockets use the Rails 8 "Solid" trifecta (Solid Queue, Solid Cache, Solid Cable), all database-backed. **All four share the single PostgreSQL database** (`<app_name>_<env>`, where `app_name` is derived from the repo folder name) — there are no separate cache/cable/queue databases, no `db/cache_schema.rb` / `db/cable_schema.rb` / `db/queue_schema.rb`, and `config/cache.yml` / `config/cable.yml` / `config/queue.yml` have no separate connection blocks. Override the connection via `DATABASE_URL` or the `DATABASE_USER` / `DATABASE_PASSWORD` / `DATABASE_HOST` / `DATABASE_PORT` env vars (see `config/database.yml`).
 
 **Per-app, per-worktree DB naming.** `config/database.yml` derives the development *and* test DB names automatically, so an app forked from this template gets its own databases with no edits to the file. The name has two parts: an `app_name` (the repository's own folder name, sanitized to a legal Postgres identifier — `coolapp`, or `build-new` → `build_new`) and a worktree suffix. In the **main checkout** (where `.git` is a directory) the suffix is empty: `<app_name>_development` / `<app_name>_test`. In a **git worktree** (where `.git` is a pointer file written by `git worktree add`, e.g. Conductor workspaces) the worktree's own folder name is appended — `<app_name>_development_<worktree>` / `<app_name>_test_<worktree>` — so parallel worktrees never share or clobber each other's schemas, and parallel `bin/rails test` runs no longer collide on a shared test DB. `app_name` is found from the main repo even inside a worktree: the worktree's `.git` pointer (`gitdir: <repo>/.git/worktrees/<wt>`) is read and walked up to the main repo root, whose folder name becomes `app_name`. This matters when forking this template into a new app: if two checkouts shared a dev DB, migrations from one would land in the other and `db:schema:dump` would commit phantom tables. Override the development name entirely with `DATABASE_NAME`. Staging/production are named the same way but are overridden by `DATABASE_URL` on real deploys, so the derived name there is only a local fallback.
 
 ## Commands
 
 ```bash
-bin/setup              # Initial setup (bundle, db:prepare, start dev)
+bin/setup              # Initial setup (bundle, db:prepare, clear tmp/logs)
 bin/dev                # Dev server (Rails :3000 + Vite :3036)
 bin/rails test         # Minitest
 bin/rails test:system  # Capybara + headless Chrome
@@ -50,7 +50,7 @@ The page name resolves to a React component in `app/javascript/pages/` via `app/
 ### Frontend directory layout
 
 - **`app/javascript/`** — Vite source: `entrypoints/`, page components in `pages/`
-- **`app/frontend/`** — Shared React code: `types/inertia.ts`, the design system under `components/design-system/` and `components/ui/`, helpers under `lib/`, and the design-system stylesheet under `styles/`.
+- **`app/frontend/`** — Shared React code: `types/inertia.ts`, the design-system reference under `components/design-system/`, shadcn components under `components/ui/`, app components under `components/`, hooks under `hooks/`, and helpers under `lib/`.
 
 The `@` path alias resolves to `app/frontend/` in both Vite and TypeScript configs. Import shared code as `@/types/inertia`, `@/components/ui/button`, `@/lib/utils`, etc.
 
@@ -69,7 +69,7 @@ The `@` path alias resolves to `app/frontend/` in both Vite and TypeScript confi
 
 - `app/javascript/entrypoints/inertia.ts` — React mount point, page resolution
 - `app/javascript/ssr/ssr.tsx` — SSR mount point (mirrors `inertia.ts` but renders to string); auto-detected by vite-plugin-ruby
-- `app/javascript/entrypoints/application.css` — Tailwind import, `@source` directive, and the design-system stylesheet import
+- `app/javascript/entrypoints/application.css` — Tailwind import, `@source` directive, shadcn imports, and theme tokens
 - `app/views/layouts/application.html.erb` — Vite client, Inertia entrypoint, `inertia_ssr_head`
 - `app/controllers/application_controller.rb` — `inertia_share` for shared props
 - `app/controllers/concerns/authentication.rb` — session helpers, `require_authentication`
@@ -192,7 +192,7 @@ export default function Pricing() {
 - Tailwind CSS v4 + a complete design system (tokens, primitives, dark mode) — see the "Design system" section below and `/admin/design-system`
 - `ApplicationController` restricts to modern browsers
 - Inertia shared props: `current_user`, `flash`, `errors` on every page (see `@/types/inertia`)
-- PostgreSQL (database `<app_name>_<env>`, derived from the repo's folder name — `build_new` for this template) is the only database — Active Record + Solid Queue/Cache/Cable all share it
+- PostgreSQL (database `<app_name>_<env>`, derived from the repo's folder name) is the only database — Active Record + Solid Queue/Cache/Cable all share it
 
 <!-- design-system:start -->
 ## Design system

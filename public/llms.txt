@@ -1,6 +1,6 @@
-# App Name
+# cmer's Rails Template
 
-> One-sentence description of what this app does and who it's for.
+> Rails 8 + Inertia + React template with a shadcn-backed design system.
 > Replace the heading and tagline above when forking this template.
 
 This file follows the llms.txt convention (https://llmstxt.org). It gives

@@ -1,5 +1,5 @@
 {
-  "name": "build-new",
+  "name": "cmer-rails-template",
   "private": true,
   "type": "module",
   "devDependencies": {
