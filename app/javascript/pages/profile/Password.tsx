@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell"
 import { PageHeader } from "@/components/PageHeader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { ProfileSubNav } from "./ProfileSubNav"
 
 import type { PageProps } from "@/types/inertia"
@@ -37,13 +38,13 @@ export default function ProfilePassword() {
         />
 
         {props.flash?.notice && (
-          <p className="mt-6 text-sm text-accent">{props.flash.notice}</p>
+          <p className="mt-6 text-sm text-primary">{props.flash.notice}</p>
         )}
 
         <section className="mt-10 max-w-md">
           <form onSubmit={submit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="current_password">Current password</label>
+              <Label htmlFor="current_password">Current password</Label>
               <Input
                 id="current_password"
                 type="password"
@@ -56,11 +57,11 @@ export default function ProfilePassword() {
                 }
               />
               {errors.current_password && (
-                <p className="text-xs text-danger-display">{errors.current_password}</p>
+                <p className="text-xs text-destructive">{errors.current_password}</p>
               )}
             </div>
             <div className="space-y-2">
-              <label htmlFor="password">New password</label>
+              <Label htmlFor="password">New password</Label>
               <Input
                 id="password"
                 type="password"
@@ -73,7 +74,7 @@ export default function ProfilePassword() {
                 }
               />
               {errors.password && (
-                <p className="text-xs text-danger-display">{errors.password}</p>
+                <p className="text-xs text-destructive">{errors.password}</p>
               )}
             </div>
             <Button type="submit" disabled={passwordForm.processing}>

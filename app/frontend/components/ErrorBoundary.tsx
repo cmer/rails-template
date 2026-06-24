@@ -35,7 +35,7 @@ export class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-page px-6 text-center">
+        <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
           <h1>Something went wrong</h1>
           <p>The app hit an unexpected error. Reloading usually fixes it.</p>
           <Button onClick={() => window.location.reload()}>Reload</Button>

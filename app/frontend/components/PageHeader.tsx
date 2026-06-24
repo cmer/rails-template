@@ -10,7 +10,7 @@ type PageHeaderProps = {
 export function PageHeader({ title, description, actions, tabs }: PageHeaderProps) {
   return (
     <div>
-      <div className="flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1>{title}</h1>
           {description && <p className="mt-1">{description}</p>}

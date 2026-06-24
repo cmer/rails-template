@@ -20,17 +20,17 @@ export default function AdminUserShow({ user }: { user: UserDetail }) {
         <meta property="og:description" content={`User detail for ${user.email}.`} />
       </Head>
       <AdminShell>
-        <div className="border-b border-hairline pb-6">
+        <div className="border-b border-border pb-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h1>{user.email}</h1>
               <p className="mt-1">User #{user.id}</p>
             </div>
             <div className="flex items-center gap-2">
-              {user.admin && <Badge tone="accent">Admin</Badge>}
+              {user.admin && <Badge>Admin</Badge>}
               <Link
                 href="/admin/users"
-                className="text-sm text-ink-muted no-underline hover:text-ink-display"
+                className="text-sm text-muted-foreground no-underline hover:text-foreground"
               >
                 Back to users
               </Link>
@@ -53,8 +53,8 @@ export default function AdminUserShow({ user }: { user: UserDetail }) {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <>
-      <dt className="text-sm text-ink-muted">{label}</dt>
-      <dd className="text-sm text-ink-body">{value}</dd>
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="text-sm text-foreground">{value}</dd>
     </>
   )
 }

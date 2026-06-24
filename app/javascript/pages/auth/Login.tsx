@@ -3,6 +3,7 @@ import { Head, Link, useForm, usePage } from "@inertiajs/react"
 import { AuthShell } from "@/components/AuthShell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 import type { PageProps } from "@/types/inertia"
 
@@ -27,23 +28,23 @@ export default function Login() {
       <AuthShell>
         <div className="text-center">
           <h2>Log in</h2>
-          <p className="mt-2 text-sm text-ink-muted">
+          <p className="mt-2 text-sm text-muted-foreground">
             Don&apos;t have an account? <Link href="/signup">Sign up</Link>
           </p>
         </div>
 
         {props.flash?.notice && (
-          <p className="mt-4 text-center text-sm text-accent">
+          <p className="mt-4 text-center text-sm text-primary">
             {props.flash.notice}
           </p>
         )}
         {baseError && (
-          <p className="mt-4 text-center text-sm text-danger-display">{baseError}</p>
+          <p className="mt-4 text-center text-sm text-destructive">{baseError}</p>
         )}
 
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email">Email</label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
@@ -55,7 +56,7 @@ export default function Login() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="password">Password</label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"

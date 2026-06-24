@@ -10,7 +10,7 @@ export function ProfileSubNav({ active }: { active: "details" | "password" }) {
   const activeHref = active === "details" ? "/profile" : "/profile/password"
 
   return (
-    <nav className="flex items-end gap-6 border-b border-hairline">
+    <nav className="flex items-end gap-6 border-b border-border">
       {TABS.map((tab) => {
         const isActive = tab.href === activeHref
         return (
@@ -20,8 +20,8 @@ export function ProfileSubNav({ active }: { active: "details" | "password" }) {
             className={cn(
               "-mb-px border-b-2 px-1 py-3 text-sm no-underline",
               isActive
-                ? "border-accent font-medium text-accent-display"
-                : "border-transparent text-ink-body hover:text-ink-display",
+                ? "border-primary font-medium text-primary"
+                : "border-transparent text-foreground hover:text-foreground",
             )}
           >
             {tab.label}

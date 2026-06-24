@@ -11,6 +11,7 @@ import {
   User,
   X,
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import { cn } from "@/lib/utils"
 import type { PageProps } from "@/types/inertia"
 
@@ -70,7 +71,7 @@ export function MainNav({
     <>
       <aside
         className={cn(
-          "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-hairline bg-page transition-[width] duration-200 lg:flex",
+          "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-background transition-[width] duration-200 lg:flex",
           open ? "w-56" : "w-14",
         )}
       >
@@ -85,40 +86,43 @@ export function MainNav({
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
-            className="absolute inset-0 bg-ink-display/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
-          <aside className="absolute left-0 top-0 flex h-full w-64 flex-col bg-page shadow-xl">
-            <div className="flex h-14 shrink-0 items-center justify-between border-b border-hairline px-4">
-              <span className="font-display text-sm font-semibold text-ink-display">
+          <aside className="absolute left-0 top-0 flex h-full w-64 flex-col bg-background shadow-xl">
+            <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+              <span className="font-heading text-sm font-semibold text-foreground">
                 {BRAND}
               </span>
-              <button
+              <Button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-ink-muted hover:bg-surface hover:text-ink-display"
+                variant="ghost"
+                size="icon"
                 aria-label="Close navigation"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
             <RailNav open items={items} onClose={() => setMobileOpen(false)} />
-            <div className="border-t border-hairline p-2">
+            <div className="border-t border-border p-2">
               <UserMenu open />
             </div>
           </aside>
         </div>
       )}
 
-      <button
+      <Button
         type="button"
         onClick={() => setMobileOpen(true)}
-        className="fixed right-3 top-3 z-30 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-hairline bg-page text-ink-body hover:bg-surface lg:hidden"
+        className="fixed right-3 top-3 z-30 lg:hidden"
+        variant="outline"
+        size="icon"
         aria-label="Open navigation"
       >
         <Menu className="h-4 w-4" />
-      </button>
+      </Button>
     </>
   )
 }
@@ -138,52 +142,55 @@ function RailBody({
     <>
       <div
         className={cn(
-          "flex h-14 shrink-0 items-center gap-3 border-b border-hairline px-3",
+          "flex h-14 shrink-0 items-center gap-3 border-b border-border px-3",
           open ? "justify-between" : "justify-center",
         )}
       >
         <Link
           href={brandHref}
-          className="flex min-w-0 items-center gap-2 text-ink-display no-underline"
+          className="flex min-w-0 items-center gap-2 text-foreground no-underline"
           aria-label={BRAND}
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent-faded font-display text-sm font-semibold text-accent">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent font-heading text-sm font-semibold text-accent-foreground">
             {BRAND.charAt(0)}
           </span>
           {open && (
-            <span className="truncate font-display text-sm font-semibold">
+            <span className="truncate font-heading text-sm font-semibold">
               {BRAND}
             </span>
           )}
         </Link>
         {open && (
-          <button
+          <Button
             type="button"
             onClick={onToggle}
-            className="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-ink-muted hover:bg-surface hover:text-ink-display"
+            variant="ghost"
+            size="icon"
             aria-label="Collapse sidebar"
           >
             <ChevronsLeft className="h-4 w-4" />
-          </button>
+          </Button>
         )}
       </div>
 
       <RailNav open={open} items={items} />
 
       {!open && (
-        <div className="border-t border-hairline p-2">
-          <button
+        <div className="border-t border-border p-2">
+          <Button
             type="button"
             onClick={onToggle}
-            className="flex h-9 w-full cursor-pointer items-center justify-center rounded-md text-ink-muted hover:bg-surface hover:text-ink-display"
+            className="w-full"
+            variant="ghost"
+            size="icon"
             aria-label="Expand sidebar"
           >
             <ChevronsRight className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       )}
 
-      <div className="border-t border-hairline p-2">
+      <div className="border-t border-border p-2">
         <UserMenu open={open} />
       </div>
     </>
@@ -247,8 +254,8 @@ function NavItem({
           "flex items-center gap-3 rounded-md no-underline",
           open ? "px-3 py-2" : "mx-auto h-9 w-9 justify-center",
           active
-            ? "bg-accent-faded text-accent-display"
-            : "text-ink-body hover:bg-surface hover:text-ink-display",
+            ? "bg-accent text-accent-foreground"
+            : "text-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         <Icon className="h-4 w-4 shrink-0" />
@@ -257,7 +264,7 @@ function NavItem({
       {!open && (
         <span
           role="tooltip"
-          className="pointer-events-none absolute left-full top-1/2 z-50 ml-[13px] -translate-y-1/2 whitespace-nowrap rounded-md border border-hairline bg-page px-2 py-1 text-xs font-medium text-ink-display opacity-0 shadow-sm transition-opacity group-hover/nav-item:opacity-100"
+          className="pointer-events-none absolute left-full top-1/2 z-50 ml-[13px] -translate-y-1/2 whitespace-nowrap rounded-md border border-border bg-background px-2 py-1 text-xs font-medium text-foreground opacity-0 shadow-sm transition-opacity group-hover/nav-item:opacity-100"
         >
           {label}
         </span>
@@ -279,17 +286,17 @@ function UserMenu({ open }: { open: boolean }) {
           type="button"
           aria-label={open ? undefined : email || "Account"}
           className={cn(
-            "group/user relative flex w-full cursor-pointer items-center gap-3 rounded-md text-left text-ink-body hover:bg-surface hover:text-ink-display focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+            "group/user relative flex w-full cursor-pointer items-center gap-3 rounded-md text-left text-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             open ? "px-2 py-2" : "h-10 justify-center",
           )}
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-faded text-xs font-semibold text-accent">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
             {initial}
           </span>
           {open ? (
             <span className="min-w-0 flex-1 truncate text-sm">{email}</span>
           ) : (
-            <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md border border-hairline bg-page px-2 py-1 text-xs font-medium text-ink-display opacity-0 shadow-md transition-opacity group-hover/user:opacity-100">
+            <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md border border-border bg-background px-2 py-1 text-xs font-medium text-foreground opacity-0 shadow-md transition-opacity group-hover/user:opacity-100">
               {email}
             </span>
           )}
@@ -297,10 +304,10 @@ function UserMenu({ open }: { open: boolean }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top" align="start" className="w-56">
         <DropdownMenuLabel className="normal-case tracking-normal">
-          <span className="block text-[10px] uppercase tracking-wider text-ink-muted">
+          <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
             Signed in as
           </span>
-          <span className="block truncate text-xs font-medium text-ink-display">
+          <span className="block truncate text-xs font-medium text-foreground">
             {email}
           </span>
         </DropdownMenuLabel>

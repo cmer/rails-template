@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell"
 import { PageHeader } from "@/components/PageHeader"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { ProfileSubNav } from "./ProfileSubNav"
 
 import type { PageProps } from "@/types/inertia"
@@ -35,13 +36,13 @@ export default function ProfileDetails() {
         />
 
         {props.flash?.notice && (
-          <p className="mt-6 text-sm text-accent">{props.flash.notice}</p>
+          <p className="mt-6 text-sm text-primary">{props.flash.notice}</p>
         )}
 
         <section className="mt-10 max-w-md">
           <form onSubmit={submit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email">Email</label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -52,7 +53,7 @@ export default function ProfileDetails() {
                 onChange={(e) => emailForm.setData("email", e.target.value)}
               />
               {errors.email && (
-                <p className="text-xs text-danger-display">{errors.email}</p>
+                <p className="text-xs text-destructive">{errors.email}</p>
               )}
             </div>
             <Button type="submit" disabled={emailForm.processing}>

@@ -1,7 +1,6 @@
-// bm-design-system: theme helper
 import * as React from "react";
 
-const STORAGE_KEY = "bm-ds-theme";
+const STORAGE_KEY = "theme";
 
 export type Theme = "light" | "dark" | "system";
 

@@ -3,6 +3,7 @@ import { Head, Link, useForm, usePage } from "@inertiajs/react"
 import { AuthShell } from "@/components/AuthShell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 import type { PageProps } from "@/types/inertia"
 
@@ -27,12 +28,12 @@ export default function PasswordNew() {
         <p className="mt-2">We&apos;ll email you a link to set a new password.</p>
 
         {props.flash?.notice && (
-          <p className="mt-4 text-sm text-accent">{props.flash.notice}</p>
+          <p className="mt-4 text-sm text-primary">{props.flash.notice}</p>
         )}
 
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email">Email</label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"

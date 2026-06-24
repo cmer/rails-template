@@ -3,6 +3,7 @@ import { Head, useForm, usePage } from "@inertiajs/react"
 import { AuthShell } from "@/components/AuthShell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 import type { PageProps } from "@/types/inertia"
 
@@ -30,7 +31,7 @@ export default function PasswordEdit({ token }: Props) {
         <h2>Choose a new password</h2>
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <label htmlFor="password">New password</label>
+            <Label htmlFor="password">New password</Label>
             <Input
               id="password"
               type="password"
@@ -41,7 +42,7 @@ export default function PasswordEdit({ token }: Props) {
               onChange={(e) => form.setData("password", e.target.value)}
             />
             {errors.password && (
-              <p className="text-xs text-danger-display">{errors.password}</p>
+              <p className="text-xs text-destructive">{errors.password}</p>
             )}
           </div>
           <Button type="submit" disabled={form.processing}>

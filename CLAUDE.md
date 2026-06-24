@@ -194,29 +194,31 @@ export default function Pricing() {
 - Inertia shared props: `current_user`, `flash`, `errors` on every page (see `@/types/inertia`)
 - PostgreSQL (database `<app_name>_<env>`, derived from the repo's folder name — `build_new` for this template) is the only database — Active Record + Solid Queue/Cache/Cable all share it
 
-<!-- bm-design-system:start -->
+<!-- design-system:start -->
 ## Design system
 
-This codebase has a design system documented at [`/admin/design-system`](/admin/design-system). The page previews and explains every primitive — colors, typography, structure, base styles, and elements — and shows the exact markup to use.
+This codebase uses a shadcn-backed design system documented at [`/admin/design-system`](/admin/design-system). shadcn is the source of truth for `components/ui`, component APIs, theme tokens, aliases, icon library, and installed component inventory.
 
 When implementing UI:
 
-1. **Always check the design system first.** Before writing any frontend markup or styles, refer to `/admin/design-system` and the components under `components/ui/` and `components/design-system/sections/`. Use the existing tokens (`bg-page`, `bg-surface`, `text-ink-body`, etc.) and the existing primitives (`<Button>`, `<Input>`, `<Badge>`, `<Select>`, `<Checkbox>`, `<Radio>`, `<RichTextField>`, `<Dialog>`, `<ThemeToggle>` and friends).
+1. **Use shadcn first.** Before writing frontend markup or styles, inspect `components.json` and run `npx shadcn@latest info --json` if the project shape is unclear. Use existing components from `components/ui` and examples from `/admin/design-system`.
 
-2. **Do not invent ad-hoc styles.** Don't reach for raw hex values, raw font sizes, or one-off Tailwind utilities when a token or primitive exists. Don't introduce new variant systems alongside the existing `cva`-based ones.
+2. **Install missing primitives through shadcn.** If a needed primitive is missing, add it with `npx shadcn@latest add <component>`. For existing files, check changes first with `npx shadcn@latest add <component> --diff` and ask before overwriting user-modified components.
 
-3. **Use bare semantic HTML for text elements.** Headings (`<h1>`–`<h6>`), paragraphs (`<p>`), anchors (`<a>`), `<strong>`, `<blockquote>`, `<ul>` / `<ol>` / `<li>`, `<hr>`, and form-field labels (`<label htmlFor>` / `<legend>`) already have their size, color, weight, font, letter-spacing, and line-height defined in the base layer of `design-system.css`. **Do not apply Tailwind utilities like `text-xl`, `text-2xl`, `text-sm`, `font-semibold`, `font-medium`, `text-ink-display`, `text-ink-muted`, `tracking-tight`, `leading-tight` to these elements** — write `<h1>Projects</h1>`, not `<h1 className="text-2xl font-semibold text-ink-display">Projects</h1>`, and write `<label htmlFor="email">Email</label>`, not `<label htmlFor="email" className="text-sm font-medium text-ink-display">Email</label>`. Page headers in particular use `<h1>` (not `<h2>`) at the design system's base h1 size. Layout utilities (`mt-1`, `mb-4`, `max-w-md`, `flex`, etc.) are fine. If a usage genuinely needs different text styling, propose adding it to the design system as a class or element variant rather than overriding inline. The base rule applies to all `<label>` and `<legend>` elements; for the special case of a label used as a wrapper around a checkbox/radio (where the visible text is body copy, not a field title), add `font-normal text-ink-body` to override the medium weight and display color.
+3. **Use shadcn semantic tokens.** Prefer `bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-card`, `text-card-foreground`, `bg-primary`, `text-primary-foreground`, and related shadcn variables. Do not introduce raw hex values, competing token names, or one-off color systems.
 
-4. **If a needed UI element is missing, propose it as a design-system addition** before building a one-off. Ask the user something like: "There's no existing primitive for X. Want me to add it to the design system (`components/ui/x.tsx` + a new section on `/admin/design-system`) so it stays consistent, or do a one-off here?" Default to proposing the system addition.
+4. **Do not fork component APIs casually.** Use the variant names and props provided by the installed shadcn component source. If the app needs a new reusable variant, update the shadcn component intentionally and document it on `/admin/design-system`.
 
-5. **Re-running the `bm-design-system` skill** is the supported way to add new sections or update tokens. It detects existing setup and merges non-destructively.
+5. **Use the shadcn sidekick skill.** Future agents should have the shadcn skill installed with `pnpm dlx skills add shadcn/ui`; it knows how to read `components.json`, inspect installed components, and follow shadcn conventions.
+
+6. **Re-run `design-system` for system work.** Use this skill to refresh the reference page, apply a shadcn preset, re-scan migration candidates, or update the managed instructions.
 
 ### Styling pipeline
 
-**Tailwind CSS v4** is wired up via `@tailwindcss/vite` in `vite.config.ts`. `app/javascript/entrypoints/application.css` imports the framework and then imports the design-system stylesheet (`app/frontend/styles/design-system.css`), which defines the `@theme` block (color + font tokens) and the base layer. The layout loads the bundle with `vite_stylesheet_tag "application"`.
+**Tailwind CSS v4** is wired up via `@tailwindcss/vite` in `vite.config.ts`. `app/javascript/entrypoints/application.css` imports Tailwind, `tw-animate-css`, shadcn's Tailwind preset, Geist, and the shadcn theme tokens generated by the CLI. The layout loads the bundle with `vite_stylesheet_tag "application"`.
 
 Source files are declared explicitly via an `@source` directive in `application.css` (Tailwind v4 has auto-detection, but it doesn't reliably pick up the split between `app/javascript/` and `app/frontend/` in this setup, so we declare them explicitly). Don't remove the `@source` line — classes used only inside `app/frontend/components/**` will silently fail to emit if you do.
-<!-- bm-design-system:end -->
+<!-- design-system:end -->
 
 ## Testing and verification
 

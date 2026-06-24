@@ -3,6 +3,7 @@ import { Head, Link, useForm, usePage } from "@inertiajs/react"
 import { AuthShell } from "@/components/AuthShell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 import type { PageProps } from "@/types/inertia"
 
@@ -33,14 +34,14 @@ export default function Signup() {
       <AuthShell>
         <div className="text-center">
           <h2>Create your account</h2>
-          <p className="mt-2 text-sm text-ink-muted">
+          <p className="mt-2 text-sm text-muted-foreground">
             Already have an account? <Link href="/login">Log in</Link>
           </p>
         </div>
 
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email">Email</label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
@@ -52,11 +53,11 @@ export default function Signup() {
               onChange={(e) => form.setData("email", e.target.value)}
             />
             {errors.email && (
-              <p className="text-xs text-danger-display">{errors.email}</p>
+              <p className="text-xs text-destructive">{errors.email}</p>
             )}
           </div>
           <div className="space-y-2">
-            <label htmlFor="password">Password</label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
@@ -67,7 +68,7 @@ export default function Signup() {
               onChange={(e) => form.setData("password", e.target.value)}
             />
             {errors.password && (
-              <p className="text-xs text-danger-display">{errors.password}</p>
+              <p className="text-xs text-destructive">{errors.password}</p>
             )}
           </div>
           <Button type="submit" disabled={form.processing}>

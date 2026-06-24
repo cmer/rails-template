@@ -7,12 +7,12 @@ export default function AdminDesignSystem() {
       <Head title="Design system">
         <meta
           name="description"
-          content="Internal reference for every visual primitive in this app — colors, typography, structure, base styles, and elements."
+          content="Internal shadcn reference for components, theme tokens, aliases, and the CLI workflow used by this app."
         />
         <meta property="og:title" content="Design system" />
         <meta
           property="og:description"
-          content="Internal reference for every visual primitive in this app — colors, typography, structure, base styles, and elements."
+          content="Internal shadcn reference for components, theme tokens, aliases, and the CLI workflow used by this app."
         />
       </Head>
       <DesignSystem />

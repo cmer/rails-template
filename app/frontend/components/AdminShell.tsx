@@ -25,7 +25,7 @@ const ADMIN_NAV_ITEMS: NavItemDef[] = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-page text-ink-body">
+    <div className="flex min-h-screen bg-background text-foreground">
       <MainNav items={ADMIN_NAV_ITEMS} brandHref="/admin/users" />
       <main className="min-w-0 flex-1 px-6 py-8 sm:px-10">
         <div className="mx-auto max-w-4xl">{children}</div>
