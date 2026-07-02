@@ -2,6 +2,7 @@
   "name": "cmer-rails-template",
   "private": true,
   "type": "module",
+  "packageManager": "npm@10.9.0",
   "devDependencies": {
     "@types/node": "^26.0.0",
     "rails-vite-plugin": "^0.2.5",
@@ -40,6 +41,7 @@
     "ssr": "node ssr/ssr.js"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.12.0",
+    "npm": ">=10.9.0"
   }
 }
